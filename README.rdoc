@@ -1,0 +1,48 @@
+= RailsDocumentReady
+
+In the asset pipeline in Rails, each of the Javascript files are meshed into one big file. If you project relies a lot
+on Javascript, you may find that you have a lot of $(document).ready functions which will all fire on every page load.
+
+A lot of these are probably harmless as they will probably use jQuery to find elements that don't exist and therefore
+have no effect. But in bigger projects you are eventually going to run into one of these scripts doing something unexpected.
+
+This gem has two very small parts. One is a helper to insert in the <body> tag of each page which specifies the controller
+and action for the current page. The second uses a very simple $(document).ready script to read these tags and look for a
+jQuery class that matches the naming and execute a function named after the action. This should be made a little clearer
+in the following example.
+
+== Installation
+
+It's a gem, add this to your Gemfile:
+
+    gem 'rails_document_ready'
+
+=== View Configuration
+
+This gem uses data tags to detect the current controller and action. You need to modify your body tag to look like this:
+
+    <body <%= rails_document_ready_tags %>>
+
+=== Asset Configuration
+
+Add the following to your application.js
+
+    //= require rails_document_ready
+
+That's it for the setup.
+
+== Example
+
+For some unknown reason, we want to pop up with an alert saying "Hello" every time the HomeController renders the index action and "Goodbye" when it renders
+the show action. In our /app/assets/javascripts/home.coffee we can put:
+
+    class @HomeReady
+      @index: ->
+        alert("Hello")
+      @show: ->
+        alert("Goodbye")
+
+== Namespaces
+
+The controller name generated includes any namespacing of the controllers to prevent collisions. You can always see the expected name of your class by looking at
+the generated body tag from your application and adding "Ready" to the end of it.Eg admin/home_controller.rb will likely end up with a class name of AdminHomeReady.
